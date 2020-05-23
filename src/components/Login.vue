@@ -79,7 +79,7 @@
                 //     }
                 // });
                 // Function(callback: Function(boolean, object))
-                this.$refs.loginFormRef.validate(valid=>{
+                this.$refs.loginFormRef.validate(async (valid,)=>{
                     // console.log(valid)
                     //!valid 判断valid是否为true，可以取反，如果valid是false者取反为true，直接return
                     //如果不发起请求，这直接return结束，也即valid为false
@@ -87,8 +87,29 @@
                     //如果valid是对的，则！valid是错的，则不会结束
                     if(!valid) return;
                     //axios. post增 delete删 put改 get查
-                  const  result =  this.$http.post('login',this.loginForm);
-                    console.log(result)
+                // const result = await  this.$http.post('login',this.loginForm)
+                    // console.log(result)
+                    // https://blog.csdn.net/qq_37899792/article/details/88710077
+                    // await 后面可以跟任何的JS 表达式。虽然说 await 可以等很多类型的东西，
+                    // 但是它最主要的意图是用来等待 Promise 对象的状态被 resolved。
+                    // 如果await后面是 promise对象会造成异步函数停止执行并且等待 promise 的解决,
+                    //     如果await后面是 正常的表达式则立即执行。
+                    const { data:res} =await  this.$http.post('login',this.loginForm)
+                    // if(res.meta.status !== 200) return  console.log('登录失败')
+                    if(res.meta.status !== 200) return this.$message.error('登录失败')
+                    // console.log('登录成功')
+                    this.$message.success('登录成功')
+                    //将登录成功之后的 token 保存在客户端的sessionstorage 中
+                    //项目中除了登录之外的其他api接口，必须在登录之后才能访问
+                    //一句话就是登录才能进
+                    //token只应当在当前网站打开期间生效，所以将token保存在sessinostorage中
+                    // console.log(res)
+                    window.sessionStorage.setItem('token',res.data.token);
+                    // 通过编程式导航跳转到后台主页，路由地址是/home
+                    this.$router.push('/home')
+                    // 有token才给你登录进去
+
+
                 })
             }
         }
